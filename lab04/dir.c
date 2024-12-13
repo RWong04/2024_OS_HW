@@ -288,9 +288,9 @@ static int osfs_create(struct mnt_idmap *idmap, struct inode *dir, struct dentry
         return -EIO;
     }
     // init osfs_inode attribute
-    osfs_inode->i_block = 0; 
+    // osfs_inode->i_block = 0; 
     osfs_inode->i_size = 0;
-    osfs_inode->i_blocks = 0;
+    // osfs_inode->i_blocks = 0;
 
     // Step4: Parent directory entry update for the new file
     ret = osfs_add_dir_entry(dir, inode->i_ino, dentry->d_name.name, dentry->d_name.len);
@@ -299,20 +299,16 @@ static int osfs_create(struct mnt_idmap *idmap, struct inode *dir, struct dentry
     if (ret) {
         pr_err("osfs_create: Failed to add directory entry\n");
         iput(inode);
+        osfs_destroy_inode(inode);
         return ret;
     }
 
     // Step 5: Update the parent directory's metadata 
-    struct osfs_sb_info *sb_info = dir->i_sb->s_fs_info;
-    parent_inode->i_size += sizeof(struct osfs_dir_entry);
-    sb_info->nr_free_blocks--; // Update free block count
+    dir->__i_mtime = parent_inode->__i_mtime = current_time(dir);
+    mark_inode_dirty(dir);
 
     // Step 6: Bind the inode to the VFS dentry
     d_instantiate(dentry, inode);  // Bind dentry to the inode
-    // dentry->d_flags &= ~DCACHE_NEGATIVE;  // Clear negative dentry flag
-
-    // pr_info("osfs_create: File '%.*s' created with inode %lu\n",
-    //         (int)dentry->d_name.len, dentry->d_name.name, inode->i_ino);
 
     return 0;
 }

@@ -1,0 +1,1 @@
+savedcmd_/home/RWong/Desktop/OSLAB/lab04/Module.symvers :=  scripts/mod/modpost -M -m -a      -o /home/RWong/Desktop/OSLAB/lab04/Module.symvers -T /home/RWong/Desktop/OSLAB/lab04/modules.order -i Module.symvers -e 
